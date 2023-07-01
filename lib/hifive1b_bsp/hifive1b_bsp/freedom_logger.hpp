@@ -1,11 +1,11 @@
 #pragma once
 
-#include <util/logger.hpp>
+#include <string_view>
 
 /// Stream for the default UART serial interface through Freedom Metal BSP
 ///
 /// This is meant to be a temporary class that will be replaced once the custom UART driver is available
-class MetalUartStream /*: public BasicOutStream<uint8_t>*/ {
+class MetalUartStream {
 	public:
 		void write(std::basic_string_view<uint8_t> data) {
 			char terminatedBuf[2];
@@ -19,12 +19,12 @@ class MetalUartStream /*: public BasicOutStream<uint8_t>*/ {
 
 };
 
-MetalUartStream& operator<<(MetalUartStream& stream, std::basic_string_view<uint8_t> data) {
+inline MetalUartStream& operator<<(MetalUartStream& stream, std::basic_string_view<uint8_t> data) {
 	stream.write(data);
 	return stream;
 }
 
-MetalUartStream& operator<<(MetalUartStream& stream, std::string_view str_view) {
+inline MetalUartStream& operator<<(MetalUartStream& stream, std::string_view str_view) {
 	stream.write(std::basic_string_view(reinterpret_cast<const uint8_t*>(str_view.data()), str_view.size()));
 	return stream;
 }
