@@ -20,12 +20,13 @@ For receiving part in ESP32, see:
 https://github.com/espressif/esp-at/blob/release/v1.1.0.0/main/interface/hspi/at_hspi_task.c
 https://www.espressif.com/sites/default/files/documentation/esp32_technical_reference_manual_en.pdf
 ------------------------------------------------------------------------*/
+#include "spi.hpp"
 
-#include <stdint.h>
-#include <string.h>
-#include <stdio.h>
-#include "spi.h"
-#include "cpu.h"
+#include <cstdint>
+#include <cstring>
+#include <cstdio>
+
+#include "cpu.hpp"
 
 
 #define IOF_EN      *(volatile uint32_t*)0x10012038

@@ -1,5 +1,4 @@
-#include <stdint.h>
-#include "cpu.h"
+#include "cpu.hpp"
 
 #define CPU_FREQ 320000000
 #define PLLR_2 1

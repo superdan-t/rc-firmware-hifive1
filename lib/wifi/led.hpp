@@ -1,6 +1,4 @@
-#ifndef LED_H__
-#define LED_H__
-
+#pragma once
 
 /*
  * Green LED : GPIO 19
@@ -18,5 +16,3 @@ typedef enum led_e
 void LED_on(led_t led);
 void LED_off(led_t led);
 void LED_toggle(led_t led);
-
-#endif

@@ -1,7 +1,8 @@
-#include <string.h>
-#include <stdint.h>
-#include "uart.h"
-#include "cpu.h"
+#include "uart.hpp"
+
+#include <cstring>
+#include <cstdint>
+#include "cpu.hpp"
 
 #define IOF_EN          *(volatile uint32_t*)0x10012038
 #define IOF_SEL         *(volatile uint32_t*)0x1001203C

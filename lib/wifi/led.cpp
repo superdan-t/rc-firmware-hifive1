@@ -1,5 +1,6 @@
-#include <stdint.h>
-#include "led.h"
+#include "led.hpp"
+
+#include <cstdint>
 
 #define GPIO_OUTPUT_EN      *(volatile uint32_t*)0x10012008
 

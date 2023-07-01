@@ -1,10 +1,11 @@
-#include <stdio.h>
-#include <stdint.h>
-#include <string.h>
-#include "uart.h"
-#include "cpu.h"
-#include "spi.h"
-#include "led.h"
+#include <cstdio>
+#include <cstdint>
+#include <cstring>
+
+#include "uart.hpp"
+#include "cpu.hpp"
+#include "spi.hpp"
+#include "led.hpp"
 
 #define DELAY           20000000
 #define BAUDRATE_115200 115200
