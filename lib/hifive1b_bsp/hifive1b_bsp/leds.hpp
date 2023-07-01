@@ -13,7 +13,7 @@ namespace hifive1b {
 
 class LedDriver {
 	public:
-		LedDriver();
+		LedDriver(uint8_t r = 0, uint8_t g = 0, uint8_t b = 0);
 		DISALLOW_COPY_AND_MOVE(LedDriver);
 
 		/// Set the value of each RGB LED, where 0 is off and non-zero is on

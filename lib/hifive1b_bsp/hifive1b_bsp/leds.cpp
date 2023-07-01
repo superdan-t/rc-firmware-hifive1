@@ -4,7 +4,7 @@ extern "C" {
 #	include <metal/led.h>
 }
 
-hifive1b::LedDriver::LedDriver() {
+hifive1b::LedDriver::LedDriver(uint8_t r, uint8_t g, uint8_t b) {
 	rgb_led[0] = metal_led_get_rgb("LD0", "red");
     rgb_led[1] = metal_led_get_rgb("LD0", "green");
     rgb_led[2] = metal_led_get_rgb("LD0", "blue");
@@ -15,7 +15,7 @@ hifive1b::LedDriver::LedDriver() {
 		}
 	}
 
-	set(0, 0, 0);
+	set(r, g, b);
 }
 
 void hifive1b::LedDriver::set(uint8_t r, uint8_t g, uint8_t b) {
