@@ -1,4 +1,4 @@
 #pragma once
 
-int wifi_main(void);
+int wifi_main();
 

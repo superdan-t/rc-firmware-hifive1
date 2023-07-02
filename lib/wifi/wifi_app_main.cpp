@@ -2,6 +2,8 @@
 #include <cstdint>
 #include <cstring>
 
+#include <hifive1b_bsp/device_driver.hpp>
+
 #include "uart.hpp"
 #include "cpu.hpp"
 #include "spi.hpp"
@@ -25,12 +27,15 @@ static char wifi_pwd[STR_LEN] = "isll3425";
 static char at_cmd[STR_LEN*2];
 static char recv_str[BUF_LEN];
 
-int wifi_main(void)
+int wifi_main()
 {
-    LED_off(LED_ALL);
-    LED_on(LED_RED);
+    // Create board driver without SPI drivers since they are managed manually by this app
+    hifive1b::Hifive1B<MetalUartStream, hifive1b::EmptySpiDriver> board_driver;
 
-    cpu_clock_init();
+    auto& status_led = board_driver.get_led_driver();
+
+    status_led.set(1, 0, 0);
+
     uart_init(BAUDRATE_115200);
 
     printf("---- HiFive1 Rev B WiFi Demo --------\r\n");
@@ -38,46 +43,18 @@ int wifi_main(void)
     printf("* SPI: 80 KHz\r\n");
     printf("* CPU: 320 MHz\r\n");
 
-    delay(DELAY);
-
-    if (interactive) {
-        get_ssid_pwd(wifi_ssid, wifi_pwd, STR_LEN);
-    }
-
-    printf("* SSID = %s\r\n", wifi_ssid);
-    printf("* Password = %s\r\n\r\n", wifi_pwd);
 
     spi_init(SPICLOCK_80KHZ);
 
-    LED_off(LED_RED);
-    LED_on(LED_BLUE);
+    status_led.set(0, 0, 1);
 
     printf("[+] ESP32 reset\r\n");
     spi_send("AT+RST\r\n");
-    delay(DELAY);
 
     // Set WiFi Station Mode
     spi_send("AT+CWMODE=1\r\n");
 
-    // Connect to the AP
-    snprintf(at_cmd, sizeof(at_cmd), "AT+CWJAP=\"%s\",\"%s\"\r\n",
-             wifi_ssid, wifi_pwd);
-
-    spi_send(at_cmd);
-
-    LED_off(LED_BLUE);
-    LED_on(LED_GREEN);
-
-    if (!interactive) {
-        while (1) {}
-    }
-
-    printf("Press ENTER to disconnect....");
-    fflush(stdout);
-    while (NULL == tty_gets(wifi_ssid, sizeof(wifi_ssid))) {}
-    printf("\r\n");
-    spi_send("AT+CWQAP\r\n");
-    spi_send("AT+CWMODE=0\r\n");
+    status_led.set(0, 1, 0);
 
     printf("* Optional: Enter AT commands (see \"ESP32 AT Instruction Set and Examples\")\r\n");
     while(1) {

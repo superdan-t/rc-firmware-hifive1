@@ -2,6 +2,7 @@
 
 #include <array>
 
+#include <hifive1b_bsp/core_clock.hpp>
 #include <hifive1b_bsp/freedom_logger.hpp>
 #include <hifive1b_bsp/leds.hpp>
 #include <hifive1b_bsp/spi_driver.hpp>
@@ -49,7 +50,6 @@ class Hifive1B {
 
 			// Set onboard LED to blue when handing back to the program
 			leds.set(0, 0, 1);
-			logger << "... Done\n";
 		}
 
 		DISALLOW_COPY_AND_MOVE(Hifive1B);
@@ -64,6 +64,7 @@ class Hifive1B {
 
 	private:
 		metal_cpu* core;
+		CoreClock hf_clock;
 		LedDriver leds;
 		Logger logger;
 
