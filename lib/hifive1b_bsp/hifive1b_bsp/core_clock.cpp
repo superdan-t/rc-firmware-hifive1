@@ -1,7 +1,5 @@
 #include <hifive1b_bsp/core_clock.hpp>
 
-#include <cpu.hpp>
-
 hifive1b::CoreClock::CoreClock() {
 	set_max_speed();
 }
@@ -26,11 +24,6 @@ Frequency hifive1b::CoreClock::get_frequency() {
 }
 
 void hifive1b::CoreClock::set_max_speed() {
-	/* temporary impl */ if (false) {
-		cpu_clock_init();
-		return;
-	}
-
 	PllConfigStatus cfg;
 
 	// Reference clock is the 16 MHz external crystal

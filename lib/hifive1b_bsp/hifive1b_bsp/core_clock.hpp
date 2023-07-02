@@ -9,14 +9,14 @@ namespace hifive1b {
 /// This class manages the high-frequency clocks used to drive the core. It assumes that this class is the sole manager
 /// of the high-frequency clock devices (HFROSC, HFXOSC, HFPLL). Configuring the clocks externally may result in
 /// incorrect behavior.
-class CoreClock /*: public Clock */{
+class CoreClock : public Clock {
 	public:
 		/// Construct a class for driving the core clock of the FE310-G002
 		CoreClock();
 
 		void set_max_speed();
 
-		Frequency get_frequency();
+		Frequency get_frequency() override;
 	private:
 
 		/// The clock frequency of the FE310-G002 after reset
