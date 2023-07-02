@@ -1,3 +1,5 @@
+/// Macros for preventing common mistakes in interface design
+
 #pragma once
 
 #define DISALLOW_COPY_AND_MOVE(classname)                           \

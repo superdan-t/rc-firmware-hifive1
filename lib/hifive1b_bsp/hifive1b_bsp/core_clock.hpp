@@ -1,5 +1,7 @@
 #pragma once
 
+#include <util/safety.hpp>
+
 #include <hifive1b_bsp/clock.hpp>
 
 namespace hifive1b {
@@ -13,6 +15,8 @@ class CoreClock : public Clock {
 	public:
 		/// Construct a class for driving the core clock of the FE310-G002
 		CoreClock();
+
+		DISALLOW_COPY_AND_MOVE(CoreClock);
 
 		void set_max_speed();
 

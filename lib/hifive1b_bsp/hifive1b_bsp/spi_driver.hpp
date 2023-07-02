@@ -28,7 +28,7 @@ class SpiDriver {
 
 		/// Construct an SPI driver and load the device handle. Sets state to VALID if successful
 		/// @param device_number An integer in [0,2] corresponding to one of the 3 SPI devices on the Hifive1
-		SpiDriver(uint32_t device_number);
+		explicit SpiDriver(uint32_t device_number);
 		
 		DISALLOW_COPY_AND_MOVE(SpiDriver);
 
@@ -48,7 +48,7 @@ class SpiDriver {
 /// Empty driver for devices that shouldn't use SPI
 class EmptySpiDriver {
 	public:
-		EmptySpiDriver(uint32_t device_number) {}
+		explicit EmptySpiDriver(uint32_t device_number) {}
 		DISALLOW_COPY_AND_MOVE(EmptySpiDriver);
 
 		void set_baud_rate(uint32_t) {}

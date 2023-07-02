@@ -32,7 +32,7 @@ class Hifive1B {
 			leds(1, 1, 0),
 
 			// Construct 3 SPI devices
-			spi_drivers({0, 1, 2})
+			spi_drivers{SpiDriverT(0), SpiDriverT(1), SpiDriverT(2)}
 		{
 			// Devices are constructed above
 
@@ -61,6 +61,9 @@ class Hifive1B {
 
 		/// Get an SPI device. i must be strictly less than the return value of num_spi_devices() or behavior is undefined
 		SpiDriverT& get_spi(std::size_t i) { return spi_drivers[i]; }
+
+		/// Get the driver for the high-frequency clock (hfclk) that drives the core and other devices 
+		CoreClock& get_clock_driver() { return hf_clock; }
 
 	private:
 		metal_cpu* core;
