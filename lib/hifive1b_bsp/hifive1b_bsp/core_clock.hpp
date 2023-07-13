@@ -14,11 +14,15 @@ namespace hifive1b {
 class CoreClock : public Clock {
 	public:
 		/// Construct a class for driving the core clock of the FE310-G002
-		CoreClock();
+		///
+		///	During construction, the PLL is initialized and the clock switches from the default internal oscillator
+		/// (HFROSC) to the high-frequency external oscillator (HFXOSC). The HFROSC is switched off after initialization
+		CoreClock(bool initial_max_speed = true);
 
 		DISALLOW_COPY_AND_MOVE(CoreClock);
 
 		void set_max_speed();
+		void set_low_speed();
 
 		Frequency get_frequency() override;
 	private:
@@ -31,7 +35,7 @@ class CoreClock : public Clock {
 		/// The frequency of the High-Frequency External Oscillator (HFXOSC) on the Hifive1 Rev B
 		static constexpr Frequency HFXOSC_FREQUENCY = frequency::MHz(16);
 
-		static constexpr uintptr_t PLLCFG_REGISTER = 0x10008008;
+		inline static volatile uint32_t* const PLLCFG_REGISTER = reinterpret_cast<volatile uint32_t*>(0x10008008);
 
 		/// Possible drivers for the PLL
 		enum class PllReferenceClock : uint8_t {
@@ -57,6 +61,9 @@ class CoreClock : public Clock {
 			PllReferenceClock reference_select = PllReferenceClock::HFXOSC;
 
 		};
+
+		/// Change the configuration of the PLL and use it as the core clock
+		void configure_and_select_pll(const PllConfigStatus&);
 
 		/// Set the PLL configuration and status register
 		void set_pll_cfg(const PllConfigStatus&);

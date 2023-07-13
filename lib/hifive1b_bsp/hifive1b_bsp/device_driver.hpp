@@ -20,7 +20,8 @@ namespace hifive1b {
  * Device driver for the Hifive1 Rev B board
 */
 template<typename Logger = MetalUartStream,
-	typename SpiDriverT = SpiDriver>
+	typename SpiDriverT = SpiDriver,
+	typename CoreClockDriverT = CoreClock>
 class Hifive1B {
 	//static_assert(std::is_base_of_v<BasicOutStream<uint8_t>, Logger>, "Logger must be a BasicOutStream that consumes uint8_t");
 
@@ -63,11 +64,11 @@ class Hifive1B {
 		SpiDriverT& get_spi(std::size_t i) { return spi_drivers[i]; }
 
 		/// Get the driver for the high-frequency clock (hfclk) that drives the core and other devices 
-		CoreClock& get_clock_driver() { return hf_clock; }
+		CoreClockDriverT& get_clock_driver() { return hf_clock; }
 
 	private:
 		metal_cpu* core;
-		CoreClock hf_clock;
+		CoreClockDriverT hf_clock;
 		LedDriver leds;
 		Logger logger;
 

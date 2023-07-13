@@ -2,7 +2,8 @@
 
 #include <cstring>
 #include <cstdint>
-#include "cpu.hpp"
+
+#include <hifive1b_bsp/clock.hpp>
 
 #define IOF_EN          *(volatile uint32_t*)0x10012038
 #define IOF_SEL         *(volatile uint32_t*)0x1001203C
@@ -21,7 +22,7 @@
 #define UART0_TX    17
 #define IOF_UART_ENABLE (BIT_MASK(UART0_RX) | BIT_MASK(UART0_TX))
 
-void uart_init(uint32_t baudrate)
+void uart_init(uint32_t baudrate, Clock& bus_clock)
 {
     // Select HW I/O function 0 (IOF0) for all pins. 
     // IOF0 means UART mode for GPIO pins 16-17.
@@ -30,7 +31,7 @@ void uart_init(uint32_t baudrate)
     IOF_EN |= IOF_UART_ENABLE;
     UART0_TXCTRL = 0;
     UART0_RXCTRL = 0;
-    UART0_DIV = cpu_freq() / baudrate - 1UL;
+    UART0_DIV = bus_clock.get_frequency().count() / baudrate - 1UL;
     UART0_TXCTRL = BIT_MASK(UART_TXEN_I);
     UART0_RXCTRL = BIT_MASK(UART_RXEN_I);
 }

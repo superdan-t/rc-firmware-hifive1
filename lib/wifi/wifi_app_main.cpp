@@ -12,8 +12,8 @@
 #define DELAY           20000000
 #define BAUDRATE_115200 115200
 #define SPICLOCK_80KHZ  80000
-#define STR_LEN         1024
-#define BUF_LEN         4096
+#define STR_LEN         256
+#define BUF_LEN         2048
 #ifdef __ICCRISCV__
 #define fflush(a)
 #endif
@@ -27,22 +27,41 @@ static char wifi_pwd[STR_LEN] = "isll3425";
 static char at_cmd[STR_LEN*2];
 static char recv_str[BUF_LEN];
 
+void* operator new(size_t size) noexcept {
+    auto new_region = malloc(size);
+    if (!new_region) {
+        // Halt and catch fire
+        for (;;) {}
+    }
+    return new_region;
+}
+
+void operator delete(void* mem) noexcept {
+    free(mem);
+}
+
 int wifi_main()
 {
     // Create board driver without SPI drivers since they are managed manually by this app
     hifive1b::Hifive1B<MetalUartStream, hifive1b::EmptySpiDriver> board_driver;
 
     auto& status_led = board_driver.get_led_driver();
-
     status_led.set(1, 0, 0);
 
-    uart_init(BAUDRATE_115200);
+    auto& hfclk = board_driver.get_clock_driver();
+
+    uart_init(BAUDRATE_115200, hfclk);
+
+    hfclk.add_frequency_change_listener([&board_driver](Frequency new_frequency) {
+        uart_init(BAUDRATE_115200, board_driver.get_clock_driver());
+        printf("---- CPU Frequency Update: %i MHz\r\n", static_cast<int>(std::chrono::duration_cast<frequency::MHz>(new_frequency).count()));
+    });
 
     printf("---- HiFive1 Rev B WiFi Demo --------\r\n");
     printf("* UART: 115200 bps\r\n");
     printf("* SPI: 80 KHz\r\n");
-    printf("* CPU: 320 MHz\r\n");
-
+    printf("* CPU: %i MHz\r\n", static_cast<int>(std::chrono::duration_cast<frequency::MHz>(hfclk.get_frequency()).count()));
+    fflush(stdout);
 
     spi_init(SPICLOCK_80KHZ);
 

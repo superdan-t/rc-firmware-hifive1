@@ -1,7 +1,28 @@
 #include <hifive1b_bsp/core_clock.hpp>
 
-hifive1b::CoreClock::CoreClock() {
-	set_max_speed();
+/// Constants defining the layout of the pllcfg register
+namespace PllcfgFields {
+	static constexpr uint32_t R_OFFSET = 0;
+	static constexpr uint32_t F_OFFSET = 4;
+	static constexpr uint32_t Q_OFFSET = 10;
+
+	static constexpr uint32_t R_MASK = 0b111;
+	static constexpr uint32_t F_MASK = 0b11'1111;
+	static constexpr uint32_t Q_MASK = 0b11;
+
+	static constexpr uint32_t SEL_OFFSET = 16;
+	static constexpr uint32_t REF_SEL_OFFSET = 17;
+	static constexpr uint32_t BYPASS_OFFSET = 18;
+
+	static constexpr uint32_t LOCK_OFFSET = 31;
+};
+
+hifive1b::CoreClock::CoreClock(bool initial_max_speed) {
+	// Either path switches away from the internal oscillator and shuts it off when finished
+	if (initial_max_speed)
+		set_max_speed();
+	else
+		set_low_speed();
 }
 
 Frequency hifive1b::CoreClock::get_frequency() {
@@ -38,37 +59,36 @@ void hifive1b::CoreClock::set_max_speed() {
 	// Divide by 2 to get the max rated CPU speed of 320 MHz
 	cfg.Q = 2;
 
+	// Do not bypass the PLL
 	cfg.bypass = false;
 
-	// Do not drive the core clock using the PLL until the lock signal is received
-	cfg.select = false;
+	// Apply this configuration
+	configure_and_select_pll(cfg);
 
-	// Write the new configuration to the register
-	set_pll_cfg(cfg);
+}
 
-	// The lock signal will not be stable for up to 100 microseconds; Delay for some CPU cycles
-	volatile uint32_t counter = 0;
-	while (counter < 1000) { ++counter; }
+void hifive1b::CoreClock::set_low_speed() {
+	PllConfigStatus cfg;
 
-	// Wait for lock signal
-	PllConfigStatus readConfig;
-	do {
-		get_pll_cfg(readConfig);
-	} while (!readConfig.lock);
+	// Use the 16 MHz crystal
+	cfg.reference_select = PllReferenceClock::HFXOSC;
 
-	// Select PLL to drive the core clock
-	cfg.select = true;
-	set_pll_cfg(cfg);
+	// Shut off and bypass the PLL, using the reference clock directly
+	cfg.bypass = true;
+
+	configure_and_select_pll(cfg);
 
 }
 
 void hifive1b::CoreClock::get_pll_cfg(PllConfigStatus& cfg) {
-	uint32_t pllreg = *reinterpret_cast<uint32_t*>(PLLCFG_REGISTER);
+	uint32_t pllreg = *PLLCFG_REGISTER;
 
-	cfg.R = (pllreg & 0b111) + 1;
-	cfg.F = 2 * (((pllreg >> 4) & 0b11'1111) + 1);
+	using namespace PllcfgFields;
 
-	switch ((pllreg >> 10) & 0b11) {
+	cfg.R = (pllreg & R_MASK) + 1;
+	cfg.F = 2 * (((pllreg >> F_OFFSET) & F_MASK) + 1);
+
+	switch ((pllreg >> Q_OFFSET) & Q_MASK) {
 		case 0b01:
 			cfg.Q = 2;
 			break;
@@ -82,11 +102,11 @@ void hifive1b::CoreClock::get_pll_cfg(PllConfigStatus& cfg) {
 			cfg.Q = 0;
 	}
 
-	cfg.select = (pllreg >> 16) & 0x1;
-	cfg.reference_select = static_cast<PllReferenceClock>((pllreg >> 17) & 0x1);
-	cfg.bypass = (pllreg >> 18) & 0x1;
+	cfg.select = (pllreg >> SEL_OFFSET) & 0x1;
+	cfg.reference_select = static_cast<PllReferenceClock>((pllreg >> REF_SEL_OFFSET) & 0x1);
+	cfg.bypass = (pllreg >> BYPASS_OFFSET) & 0x1;
 
-	cfg.lock = (pllreg >> 31) & 0x1;
+	cfg.lock = (pllreg >> LOCK_OFFSET) & 0x1;
 
 }
 
@@ -108,15 +128,57 @@ void hifive1b::CoreClock::set_pll_cfg(const PllConfigStatus& cfg) {
 			break;
 	}
 
+	using namespace PllcfgFields;
+
 	uint32_t pllreg = 0;
 	pllreg |= pllr;
-	pllreg |= pllf << 4;
-	pllreg |= pllq << 10;
+	pllreg |= pllf << F_OFFSET;
+	pllreg |= pllq << Q_OFFSET;
 
-	pllreg |= cfg.select << 16;
-	pllreg |= static_cast<uint32_t>(cfg.reference_select) << 17;
-	pllreg |= cfg.bypass << 18;
+	pllreg |= cfg.select << SEL_OFFSET;
+	pllreg |= static_cast<uint32_t>(cfg.reference_select) << REF_SEL_OFFSET;
+	pllreg |= cfg.bypass << BYPASS_OFFSET;
 
-	*reinterpret_cast<uint32_t*>(PLLCFG_REGISTER) = pllreg;
+	*PLLCFG_REGISTER = pllreg;
+
+}
+
+void hifive1b::CoreClock::configure_and_select_pll(const PllConfigStatus& cfg) {
+
+	PllConfigStatus local_cfg;
+
+	// If the new configuration is bypassing the PLL, then there's no need to temporarily use an alternate clock and we
+	// shouldn't wait for the lock signal
+	if (cfg.bypass) {
+		local_cfg = cfg;
+		local_cfg.select = true;
+		set_pll_cfg(local_cfg);
+	} else {
+
+		// The PLL cannot drive hfclk during reconfiguration, so switch to the default internal oscillator and make sure
+		// the PLL is deselected
+		local_cfg = cfg;
+		local_cfg.select = false;
+
+		// Write the new configuration to the register
+		set_pll_cfg(local_cfg);
+
+		// The lock signal will not be stable for up to 100 microseconds
+		// At the HFROSC reset frequency, counting to 1000 will surely exceed this
+		volatile uint32_t counter = 0;
+		while (counter < 1000) { ++counter; }
+
+		// Wait for lock signal
+		do {
+			get_pll_cfg(local_cfg);
+		} while (!local_cfg.lock);
+
+		// Switch back to the PLL after locking
+		local_cfg.select = true;
+		set_pll_cfg(local_cfg);
+	}
+
+	// Notify devices of the new clock speed
+	emit_frequency_change(get_frequency());
 
 }
