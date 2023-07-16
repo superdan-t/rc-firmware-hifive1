@@ -1,19 +1,24 @@
 #pragma once
 
 #include <cstdint>
+#include <util/control_register.hpp>
 #include <hifive1b_bsp/frequency.hpp>
 
 namespace hifive1b {
 
 /// Driver for the Phase-locked loop (PLL) clock multiplier on the FE310-G002
 ///
-/// Instances of this class automatically refer to the only on-chip PLL of the SoC with the intent
-/// that it's only instantiated once per chip. The class has no data members with its state being
-/// determined by the PLL config register itself.
+/// Default-constructed instances of this class refer to the only on-chip PLL of the SoC with the
+/// intent that it's only instantiated once per chip. The class has no data members with its state
+/// being determined by the PLL config register itself.
 ///
 /// More information on the PLL is available in the FE310-G002 Manual Section 6.5
 class Pll {
 	public:
+
+		constexpr Pll(uintptr_t addr = 0x10008008) : 
+			pllcfg(addr)
+		{}
 
 		/// Possible input (reference) clocks for the PLL
 		enum class ReferenceClock : uint8_t {
@@ -57,6 +62,8 @@ class Pll {
 	private:
 		/// Set the PLL configuration and status register
 		void set_config(const ConfigStatus&) const;
+
+		ControlRegister<uint32_t> pllcfg;
 
 };
 

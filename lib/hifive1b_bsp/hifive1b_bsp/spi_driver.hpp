@@ -4,12 +4,6 @@
 
 #include <util/safety.hpp>
 
-// Forward declarations
-
-extern "C" {
-	struct metal_spi;
-}
-
 namespace hifive1b {
 
 /// Driver for an SPI bus using the Freedom Metal BSP
@@ -39,7 +33,6 @@ class SpiDriver {
 		inline uint32_t get_baud_rate() const { return baud_rate; } 
 
 	private:
-		metal_spi* handle = nullptr;
 		uint32_t baud_rate = 0;
 		State state = State::INVALID;
 

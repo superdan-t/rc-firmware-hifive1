@@ -4,8 +4,6 @@
 
 // Constants for the pllcfg register
 
-static constexpr ControlRegister<uint32_t> pllcfg(0x10008008);
-
 static constexpr auto PLL_R = BitField<uint32_t>::from_range<2, 0>();
 static constexpr auto PLL_F = BitField<uint32_t>::from_range<9, 4>();
 static constexpr auto PLL_Q = BitField<uint32_t>::from_range<11, 10>();

@@ -1,13 +1,18 @@
 #pragma once
 
 #include <array>
+#include <cstdint>
 
 #include <util/safety.hpp>
 
+#ifndef NATIVE
 // Forward declarations
 extern "C" {
 	struct metal_led;
 }
+#else
+using metal_led = uint8_t;
+#endif
 
 namespace hifive1b {
 
