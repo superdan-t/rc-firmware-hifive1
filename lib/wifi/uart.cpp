@@ -3,7 +3,7 @@
 #include <cstring>
 #include <cstdint>
 
-#include <hifive1b_bsp/clock.hpp>
+#include <embedded_util/clock.hpp>
 
 #define IOF_EN          *(volatile uint32_t*)0x10012038
 #define IOF_SEL         *(volatile uint32_t*)0x1001203C

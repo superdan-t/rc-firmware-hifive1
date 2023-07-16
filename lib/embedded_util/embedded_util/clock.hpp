@@ -3,7 +3,7 @@
 #include <functional>
 #include <vector>
 
-#include <hifive1b_bsp/frequency.hpp>
+#include <embedded_util/frequency.hpp>
 
 class Clock {
 	public:

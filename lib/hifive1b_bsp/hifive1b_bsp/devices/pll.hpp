@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include <embedded_util/control_register.hpp>
-#include <hifive1b_bsp/frequency.hpp>
+#include <embedded_util/frequency.hpp>
 
 namespace hifive1b {
 

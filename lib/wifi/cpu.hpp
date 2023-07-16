@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#include <hifive1b_bsp/clock.hpp>
+#include <embedded_util/clock.hpp>
 
 uint32_t cpu_freq(void);
 void delay(uint32_t counter);
