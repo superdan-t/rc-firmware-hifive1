@@ -35,3 +35,6 @@
 # IDE files
 .vscode
 .pio
+
+# Generated Documentation
+_docs
