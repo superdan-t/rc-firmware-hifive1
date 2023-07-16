@@ -1,22 +1,5 @@
 #include <hifive1b_bsp/core_clock.hpp>
 
-/// Constants defining the layout of the pllcfg register
-namespace PllcfgFields {
-	static constexpr uint32_t R_OFFSET = 0;
-	static constexpr uint32_t F_OFFSET = 4;
-	static constexpr uint32_t Q_OFFSET = 10;
-
-	static constexpr uint32_t R_MASK = 0b111;
-	static constexpr uint32_t F_MASK = 0b11'1111;
-	static constexpr uint32_t Q_MASK = 0b11;
-
-	static constexpr uint32_t SEL_OFFSET = 16;
-	static constexpr uint32_t REF_SEL_OFFSET = 17;
-	static constexpr uint32_t BYPASS_OFFSET = 18;
-
-	static constexpr uint32_t LOCK_OFFSET = 31;
-};
-
 hifive1b::CoreClock::CoreClock(bool initial_max_speed) {
 	// Either path switches away from the internal oscillator and shuts it off when finished
 	if (initial_max_speed)
