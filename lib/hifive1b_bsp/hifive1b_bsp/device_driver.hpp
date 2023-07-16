@@ -7,8 +7,7 @@
 #include <hifive1b_bsp/leds.hpp>
 #include <hifive1b_bsp/spi_driver.hpp>
 
-//#include <util/logger.hpp>
-#include <util/safety.hpp>
+#include <embedded_util/safety.hpp>
 
 extern "C" {
 #	include "metal/cpu.h"

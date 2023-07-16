@@ -3,7 +3,7 @@
 #include <array>
 #include <cstdint>
 
-#include <util/safety.hpp>
+#include <embedded_util/safety.hpp>
 
 #ifndef NATIVE
 // Forward declarations

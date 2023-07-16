@@ -1,6 +1,6 @@
 #include <hifive1b_bsp/devices/pll.hpp>
 
-#include <util/control_register.hpp>
+#include <embedded_util/control_register.hpp>
 
 // Constants for the pllcfg register
 

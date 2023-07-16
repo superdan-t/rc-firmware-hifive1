@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <util/control_register.hpp>
+#include <embedded_util/control_register.hpp>
 #include <hifive1b_bsp/frequency.hpp>
 
 namespace hifive1b {

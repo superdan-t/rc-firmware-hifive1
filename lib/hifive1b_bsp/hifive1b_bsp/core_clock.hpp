@@ -1,6 +1,6 @@
 #pragma once
 
-#include <util/safety.hpp>
+#include <embedded_util/safety.hpp>
 
 #include <hifive1b_bsp/clock.hpp>
 #include <hifive1b_bsp/devices/pll.hpp>

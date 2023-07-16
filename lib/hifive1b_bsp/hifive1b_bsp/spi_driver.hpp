@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#include <util/safety.hpp>
+#include <embedded_util/safety.hpp>
 
 namespace hifive1b {
 
